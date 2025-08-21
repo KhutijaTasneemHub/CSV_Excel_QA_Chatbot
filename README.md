@@ -58,3 +58,23 @@ st.header("CSV_Excel_QA_Chatbot")
 Shows a big heading on your webpage:
 “CSV_Excel_QA_Chatbot.”
 Example: Like a page title in Microsoft Word.
+
+**4. Upload CSV/Excel File**
+file = st.file_uploader("Upload your CSV or Excel file", type=["csv", "xlsx"])
+
+Shows a file upload box on the web page.
+Lets the user upload CSV or Excel files.
+Example: Like when Gmail asks you to “attach a file.”
+
+**5. Read the Uploaded File**
+if file is not None:
+    if file.name.endswith(".csv"):
+        df = pd.read_csv(file)
+    else:
+        df = pd.read_excel(file)
+
+What it does:
+Checks if a file is uploaded.
+If it’s a CSV → reads it using read_csv.
+If it’s an Excel → reads it using read_excel.
+Example: If you upload sales.csv, pandas will open it like Excel and show rows & columns in Python.
