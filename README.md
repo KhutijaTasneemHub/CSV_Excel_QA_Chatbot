@@ -50,3 +50,11 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 Loads your secret API key from a hidden .env file.
 Keeps your password safe so it’s not visible on GitHub.
 Example: Think of .env as a secret diary where you write your password. Python reads it quietly but doesn’t show it to the world.
+
+
+**3. Web App Title**
+st.header("CSV_Excel_QA_Chatbot")
+
+Shows a big heading on your webpage:
+“CSV_Excel_QA_Chatbot.”
+Example: Like a page title in Microsoft Word.
