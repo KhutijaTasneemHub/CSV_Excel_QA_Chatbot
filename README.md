@@ -78,3 +78,84 @@ Checks if a file is uploaded.
 If it’s a CSV → reads it using read_csv.
 If it’s an Excel → reads it using read_excel.
 Example: If you upload sales.csv, pandas will open it like Excel and show rows & columns in Python.
+
+**6. Convert Data into Text**
+data_text = df.to_string(index=False)
+Turns the whole table (rows & columns) into plain text.
+
+This text is what AI will later understand.
+Example: Your Excel sheet “Name, Age, City” becomes:
+
+Alice 24 New York
+Bob 30 London
+
+**7. Split Text into Chunks**
+text_splitter = RecursiveCharacterTextSplitter(
+    separators=["\n"],
+    chunk_size=500,
+    chunk_overlap=50,
+    length_function=len
+)
+chunks = text_splitter.split_text(data_text)
+
+Breaks the text into small paragraphs (chunks).
+chunk_size=500: Each chunk max 500 characters.
+chunk_overlap=50: Last 50 characters are repeated in the next chunk (so no sentence is cut halfway).
+
+Example:
+Original: “Apples are red. Bananas are yellow.”
+If cut in the middle → AI may lose meaning.
+Overlap ensures context continues smoothly.
+
+**8. Create Embeddings + Store in FAISS**
+embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
+vector_store = FAISS.from_texts(chunks, embeddings)
+
+
+Step 1: Convert each chunk into embeddings (numbers).
+Step 2: Store them in FAISS (a database for fast search).
+Example:
+Upload a sheet of 100 student names → each name is turned into numbers → FAISS keeps them ready to search.
+
+**9. Take User Question**
+user_question = st.text_input("Ask a question about your data:")
+
+Shows a text box for the user to type a question.
+Example: If your Excel is about sales, you can ask:
+“Which city has the highest sales?”
+
+**10. Find Relevant Chunks**
+similar_docs = vector_store.similarity_search(user_question)
+Searches FAISS for chunks related to the question.
+
+Example: If you ask “Top sales city,” FAISS finds the row where “Sales” and “City” appear.
+
+**11. Load AI Model**
+llm = ChatOpenAI(
+    openai_api_key=OPENAI_API_KEY,
+    temperature=0,
+    model_name="gpt-3.5-turbo"
+)
+
+
+Uses GPT-3.5-Turbo model.
+temperature=0: AI gives factual answers, not creative stories.
+Example: Instead of making up answers, it sticks to what’s in your file.
+
+**12. Create a Question-Answering Chain**
+chain = load_qa_chain(llm, chain_type="stuff")
+Makes a pipeline that:
+Takes your question
+Finds matching file text
+Sends both to AI
+Returns an answer.
+
+**13. Generate Answer**
+answer = chain.run(input_documents=similar_docs, question=user_question)
+st.write("### Answer:")
+st.write(answer)
+Runs the chain, gets the AI’s answer, and shows it on the web page.
+Example:
+You ask: “Which city has max sales?”
+AI looks into your Excel → finds “London = $5000” → replies:
+“The city with highest sales is London with $5000.”
